@@ -1,0 +1,66 @@
+{
+    "name": "fixture-app",
+    "version": "1.0.0",
+    "lockfileVersion": 3,
+    "requires": true,
+    "packages": {
+        "": {
+            "name": "fixture-app",
+            "version": "1.0.0",
+            "dependencies": {
+                "lib-a": "^1.0.0",
+                "lib-b": "^2.0.0"
+            },
+            "devDependencies": {
+                "dev-tool": "^1.0.0"
+            }
+        },
+        "node_modules/@scope/util": {
+            "version": "1.2.0",
+            "resolved": "https://registry.npmjs.org/@scope/util/-/util-1.2.0.tgz"
+        },
+        "node_modules/dev-tool": {
+            "version": "1.0.0",
+            "resolved": "https://registry.npmjs.org/dev-tool/-/dev-tool-1.0.0.tgz",
+            "dev": true
+        },
+        "node_modules/lib-a": {
+            "version": "1.0.0",
+            "resolved": "https://registry.npmjs.org/lib-a/-/lib-a-1.0.0.tgz",
+            "dependencies": {
+                "lib-c": "^1.0.0"
+            },
+            "optionalDependencies": {
+                "lib-opt": "^1.0.0"
+            }
+        },
+        "node_modules/lib-b": {
+            "version": "2.0.0",
+            "resolved": "https://registry.npmjs.org/lib-b/-/lib-b-2.0.0.tgz",
+            "dependencies": {
+                "lib-c": "^2.0.0"
+            }
+        },
+        "node_modules/lib-b/node_modules/lib-c": {
+            "version": "2.0.0",
+            "resolved": "https://registry.npmjs.org/lib-c/-/lib-c-2.0.0.tgz",
+            "dependencies": {
+                "lib-d": "^1.0.0"
+            }
+        },
+        "node_modules/lib-c": {
+            "version": "1.0.0",
+            "resolved": "https://registry.npmjs.org/lib-c/-/lib-c-1.0.0.tgz",
+            "dependencies": {
+                "lib-d": "^1.0.0"
+            }
+        },
+        "node_modules/lib-d": {
+            "version": "1.1.0",
+            "resolved": "https://registry.npmjs.org/lib-d/-/lib-d-1.1.0.tgz",
+            "dependencies": {
+                "@scope/util": "^1.0.0"
+            }
+        }
+    }
+}
