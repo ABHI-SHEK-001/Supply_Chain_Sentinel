@@ -1,6 +1,8 @@
 import type { Graph } from "falkordb";
 import type { GraphClient } from "./falkordb-client.js";
 import { applyInitialGraphSchema } from "./migrations/001-initial-graph-schema.js";
+import { serviceUnavailable } from "../../shared/errors/app-error.js";
+import { logger } from "../../shared/logging/logger.js";
 
 export type GraphParams = NonNullable<NonNullable<Parameters<Graph["query"]>[1]>["params"]>;
 
@@ -13,8 +15,15 @@ export class GraphManager {
     ) { }
 
     private async graph(): Promise<Graph> {
-        const db = await this.client.getDb();
-        return db.selectGraph(this.graphName);
+        try {
+            const db = await this.client.getDb();
+            return db.selectGraph(this.graphName);
+        } catch (err) {
+            logger.warn("Graph connection failed", {
+                message: err instanceof Error ? err.message : String(err),
+            });
+            throw serviceUnavailable("Graph database is unavailable");
+        }
     }
 
     /** Connects and applies the schema once; retries on the next call if it failed. */

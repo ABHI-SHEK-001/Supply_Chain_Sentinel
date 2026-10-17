@@ -4,6 +4,8 @@ import { parseEnv, type Env } from "./config/env.js";
 import { logger } from "./shared/logging/logger.js";
 import { createGraphClient } from "./infrastructure/graph/falkordb-client.js";
 import { GraphManager } from "./infrastructure/graph/graph-manager.js";
+import { DependencyIngestionService } from "./modules/ingestion/dependency-ingestion.service.js";
+import { RepositoryService } from "./modules/repositories/repository.service.js";
 
 let env: Env;
 try {
@@ -14,7 +16,8 @@ try {
 }
 
 const graph = new GraphManager(createGraphClient(env), env.GRAPH_NAME);
-const app = createApp({ env, graphHealth: () => graph.ping() });
+const repositoryService = new RepositoryService(graph, new DependencyIngestionService(graph));
+const app = createApp({ env, graphHealth: () => graph.ping(), repositoryService });
 const HOST = "127.0.0.1";
 
 const server = app.listen(env.PORT, HOST, () => {

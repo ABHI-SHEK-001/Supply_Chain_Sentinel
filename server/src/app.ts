@@ -1,6 +1,7 @@
 import express, { type Express } from "express";
 import cors from "cors";
 import type { Env } from "./config/env.js";
+import type { RepositoryService } from "./modules/repositories/repository.service.js";
 import { registerRoutes } from "./routes/index.js";
 import type { GraphHealthCheck } from "./routes/health.routes.js";
 import { errorHandler, notFoundHandler } from "./shared/errors/error-handler.js";
@@ -8,6 +9,7 @@ import { errorHandler, notFoundHandler } from "./shared/errors/error-handler.js"
 export interface AppDeps {
     env: Env;
     graphHealth?: GraphHealthCheck | undefined;
+    repositoryService?: RepositoryService | undefined;
 }
 
 export function createApp(deps: AppDeps): Express {
@@ -18,9 +20,12 @@ export function createApp(deps: AppDeps): Express {
         .map((o) => o.trim())
         .filter(Boolean);
     app.use(cors({ origin: origins }));
-    app.use(express.json({ limit: "1mb" }));
+    app.use(express.json({ limit: "25mb" })); // lockfiles are posted as text
 
-    registerRoutes(app, { graphHealth: deps.graphHealth });
+    registerRoutes(app, {
+        graphHealth: deps.graphHealth,
+        repositoryService: deps.repositoryService,
+    });
 
     app.use(notFoundHandler);
     app.use(errorHandler);
