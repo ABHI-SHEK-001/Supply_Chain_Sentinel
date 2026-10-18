@@ -1,6 +1,7 @@
 import express, { type Express } from "express";
 import cors from "cors";
 import type { Env } from "./config/env.js";
+import type { GraphAnalysisService } from "./modules/graph-analysis/graph-analysis.service.js";
 import type { RepositoryService } from "./modules/repositories/repository.service.js";
 import { registerRoutes } from "./routes/index.js";
 import type { GraphHealthCheck } from "./routes/health.routes.js";
@@ -10,6 +11,7 @@ export interface AppDeps {
     env: Env;
     graphHealth?: GraphHealthCheck | undefined;
     repositoryService?: RepositoryService | undefined;
+    graphAnalysisService?: GraphAnalysisService | undefined;
 }
 
 export function createApp(deps: AppDeps): Express {
@@ -25,6 +27,7 @@ export function createApp(deps: AppDeps): Express {
     registerRoutes(app, {
         graphHealth: deps.graphHealth,
         repositoryService: deps.repositoryService,
+        graphAnalysisService: deps.graphAnalysisService,
     });
 
     app.use(notFoundHandler);
