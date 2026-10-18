@@ -1,6 +1,12 @@
 import type { Express } from "express";
+import { createMcpRouter } from "../mcp/mcp.routes.js";
+import type { McpDeps } from "../mcp/mcp-server.js";
+import { createAgentsRouter } from "../modules/agents/agents.routes.js";
+import type { AgentOrchestrator } from "../modules/agents/orchestrator.js";
 import { createGraphAnalysisRouter } from "../modules/graph-analysis/graph-analysis.routes.js";
 import type { GraphAnalysisService } from "../modules/graph-analysis/graph-analysis.service.js";
+import { createMemoryRouter } from "../modules/memory/memory.routes.js";
+import type { MemoryService } from "../modules/memory/memory.service.js";
 import { createRemediationRouter } from "../modules/remediation/remediation.routes.js";
 import type { RemediationService } from "../modules/remediation/remediation.service.js";
 import { createRepositoryRouter } from "../modules/repositories/repository.routes.js";
@@ -12,6 +18,9 @@ export interface RouteDeps extends HealthDeps {
   repositoryService?: RepositoryService | undefined;
   graphAnalysisService?: GraphAnalysisService | undefined;
   remediationService?: RemediationService | undefined;
+  memoryService?: MemoryService | undefined;
+  orchestrator?: AgentOrchestrator | undefined;
+  mcp?: McpDeps | undefined;
 }
 
 export function registerRoutes(app: Express, deps: RouteDeps): void {
@@ -25,5 +34,15 @@ export function registerRoutes(app: Express, deps: RouteDeps): void {
   }
   if (deps.remediationService) {
     app.use("/api/v1/remediation-plans", createRemediationRouter(deps.remediationService));
+  }
+  if (deps.memoryService) {
+    app.use("/api/v1/memory", createMemoryRouter(deps.memoryService));
+  }
+  if (deps.orchestrator) {
+    // Adds POST /repositories/:id/analyze, GET /repositories/:id/pipelines, GET /pipelines/:id, GET /tasks/:id
+    app.use("/api/v1", createAgentsRouter(deps.orchestrator));
+  }
+  if (deps.mcp) {
+    app.use("/mcp", createMcpRouter(deps.mcp));
   }
 }

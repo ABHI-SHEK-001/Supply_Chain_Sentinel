@@ -19,6 +19,7 @@ export const NODE_LABELS = [
   "AgentTask",
 ] as const;
 
+
 export const RELATIONSHIP_TYPES = [
   "CONTAINS",
   "DEPENDS_ON",
@@ -31,6 +32,8 @@ export const RELATIONSHIP_TYPES = [
   "RECORDED",
   "RELATED_TO",
   "HANDLED_BY",
+  "HAS_TASK",
+  "HANDED_OFF_TO",
 ] as const;
 
 export type NodeLabel = (typeof NODE_LABELS)[number];

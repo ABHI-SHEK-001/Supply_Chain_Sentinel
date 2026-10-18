@@ -9,6 +9,12 @@ import { RepositoryService } from "./modules/repositories/repository.service.js"
 import { GraphAnalysisService } from "./modules/graph-analysis/graph-analysis.service.js";
 import { RemediationService } from "./modules/remediation/remediation.service.js";
 import { OsvClient } from "./modules/vulnerabilities/osv.client.js";
+import { RemediationAgent, ScannerAgent, TriageAgent } from "./modules/agents/agents.js";
+import { AgentOrchestrator } from "./modules/agents/orchestrator.js";
+import { TaskStore } from "./modules/agents/task.store.js";
+import { TriageService } from "./modules/agents/triage.js";
+import { MemoryService } from "./modules/memory/memory.service.js";
+import { VulnerabilityService } from "./modules/vulnerabilities/vulnerability.service.js";
 
 let env: Env;
 try {
@@ -23,13 +29,31 @@ const repositoryService = new RepositoryService(graph, new DependencyIngestionSe
 const graphAnalysisService = new GraphAnalysisService(graph);
 const osv = new OsvClient({ timeoutMs: env.OSV_TIMEOUT_MS, concurrency: env.OSV_CONCURRENCY });
 const remediationService = new RemediationService(graph, osv);
+const memoryService = new MemoryService(graph);
+const triageService = new TriageService(graph, memoryService);
+const vulnerabilityService = new VulnerabilityService(graph, osv);
+
+const orchestrator = new AgentOrchestrator(new TaskStore(graph), {
+    scanner: new ScannerAgent(vulnerabilityService),
+    triager: new TriageAgent(triageService),
+    remediator: new RemediationAgent(remediationService, memoryService),
+});
 const app = createApp({
     env,
     graphHealth: () => graph.ping(),
     repositoryService,
     graphAnalysisService,
     remediationService,
+    memoryService,
+    orchestrator,
+    mcp: {
+        orchestrator,
+        triage: triageService,
+        remediation: remediationService,
+        memory: memoryService,
+    },
 });
+await orchestrator.recoverInterrupted();
 const HOST = "127.0.0.1";
 
 const server = app.listen(env.PORT, HOST, () => {
