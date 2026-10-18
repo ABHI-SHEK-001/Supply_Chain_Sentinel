@@ -16,7 +16,9 @@ import type { PipelineSummary } from '../../types/api';
 export default function ScanPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [repoId, setRepoId] = useState<string>((location.state as { repoId?: string } | null)?.repoId ?? 'demo');
+  const [repoId, setRepoId] = useState<string>(
+    (location.state as { repoId?: string } | null)?.repoId || '',
+  );
   const [scanning, setScanning] = useState(false);
   const [scanError, setScanError] = useState<string | null>(null);
   const scanGuard = useRef(false);
@@ -24,8 +26,22 @@ export default function ScanPage() {
   const { data: repos } = useApi(
     useCallback((s: AbortSignal) => listRepositories(s), []),
   );
+
+  // Automatically select the first repository once loaded if repoId is unset or invalid
+  useEffect(() => {
+    if (repos && repos.length > 0) {
+      if (!repoId || !repos.some((r) => r.id === repoId)) {
+        setRepoId(repos[0]!.id);
+        setScanError(null);
+      }
+    }
+  }, [repos, repoId]);
+
   const { data: pipelines, loading, error, refetch } = useApi(
-    useCallback((s: AbortSignal) => listPipelines(repoId, s), [repoId]),
+    useCallback(
+      (s: AbortSignal) => (repoId ? listPipelines(repoId, s) : Promise.resolve([])),
+      [repoId],
+    ),
   );
 
   const handleScan = async () => {
@@ -84,7 +100,7 @@ export default function ScanPage() {
                       </option>
                     ))
                   ) : (
-                    <option value="demo">demo</option>
+                    <option value="">No repositories registered</option>
                   )}
                 </select>
               </div>

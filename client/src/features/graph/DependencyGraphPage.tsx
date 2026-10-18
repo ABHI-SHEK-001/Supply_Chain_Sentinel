@@ -49,36 +49,46 @@ export default function DependencyGraphPage() {
         }
       />
 
-      {/* Repo Selector Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-ink-900 border border-ink-700/60 shadow-md">
-        <div className="flex items-center gap-3">
-          <GitBranch className="w-4 h-4 text-accent shrink-0" />
-          <span className="text-xs font-semibold uppercase tracking-wider text-ink-300">
-            Active Repository:
-          </span>
-          <select
-            value={selectedRepoId}
-            onChange={(e) => handleSelectRepo(e.target.value)}
-            disabled={reposLoading || !repos?.length}
-            className="bg-ink-800 border border-ink-600/70 text-ink-100 text-sm font-semibold rounded-lg px-3 py-1.5 focus:outline-none focus:border-accent"
-          >
-            {reposLoading ? (
-              <option>Loading repositories...</option>
-            ) : !repos || repos.length === 0 ? (
-              <option value="">No repositories registered</option>
-            ) : (
-              repos.map((r) => (
-                <option key={r.id} value={r.id}>
-                  {r.name} ({r.ecosystem || 'npm'} • {r.packageCount} pkgs)
-                </option>
-              ))
-            )}
-          </select>
+      {/* Repo Selector & Graph Metadata Bar */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-2xl bg-gradient-to-r from-ink-900 via-ink-850 to-ink-900 border border-ink-700/80 shadow-xl backdrop-blur-md">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-accent/15 border border-accent/40 text-accent">
+            <GitBranch className="w-4 h-4" />
+          </div>
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-ink-400 block">
+              Active Manifest Scope
+            </span>
+            <div className="flex items-center gap-2 mt-0.5">
+              <select
+                value={selectedRepoId}
+                onChange={(e) => handleSelectRepo(e.target.value)}
+                disabled={reposLoading || !repos?.length}
+                className="bg-ink-800 border border-ink-600/80 hover:border-accent text-white text-xs font-mono font-bold rounded-lg px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-accent shadow-inner transition-colors cursor-pointer"
+              >
+                {reposLoading ? (
+                  <option>Loading repositories...</option>
+                ) : !repos || repos.length === 0 ? (
+                  <option value="">No repositories registered</option>
+                ) : (
+                  repos.map((r) => (
+                    <option key={r.id} value={r.id}>
+                      {r.name} ({r.ecosystem || 'npm'} • {r.packageCount} pkgs)
+                    </option>
+                  ))
+                )}
+              </select>
+            </div>
+          </div>
         </div>
 
-        <div className="text-xs text-ink-400 flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-status-success" />
-          <span>FalkorDB Graph Engine Online</span>
+        {/* Status Indicator & Fast Actions */}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-ink-800/80 border border-ink-700/80 text-xs text-ink-300">
+            <span className="w-2 h-2 rounded-full bg-status-success animate-pulse" />
+            <span className="font-semibold text-white">FalkorDB</span>
+            <span className="text-ink-400">Graph Engine Online</span>
+          </div>
         </div>
       </div>
 
