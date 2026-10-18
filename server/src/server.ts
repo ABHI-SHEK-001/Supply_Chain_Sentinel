@@ -7,6 +7,8 @@ import { GraphManager } from "./infrastructure/graph/graph-manager.js";
 import { DependencyIngestionService } from "./modules/ingestion/dependency-ingestion.service.js";
 import { RepositoryService } from "./modules/repositories/repository.service.js";
 import { GraphAnalysisService } from "./modules/graph-analysis/graph-analysis.service.js";
+import { RemediationService } from "./modules/remediation/remediation.service.js";
+import { OsvClient } from "./modules/vulnerabilities/osv.client.js";
 
 let env: Env;
 try {
@@ -19,11 +21,14 @@ try {
 const graph = new GraphManager(createGraphClient(env), env.GRAPH_NAME);
 const repositoryService = new RepositoryService(graph, new DependencyIngestionService(graph));
 const graphAnalysisService = new GraphAnalysisService(graph);
+const osv = new OsvClient({ timeoutMs: env.OSV_TIMEOUT_MS, concurrency: env.OSV_CONCURRENCY });
+const remediationService = new RemediationService(graph, osv);
 const app = createApp({
     env,
     graphHealth: () => graph.ping(),
     repositoryService,
     graphAnalysisService,
+    remediationService,
 });
 const HOST = "127.0.0.1";
 
