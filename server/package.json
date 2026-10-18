@@ -10,7 +10,8 @@
     "start": "node dist/src/server.js",
     "typecheck": "tsc --noEmit",
     "test:unit": "vitest run tests/unit",
-    "scan": "tsx src/cli/scan.ts"
+    "scan": "tsx src/cli/scan.ts",
+    "verify:graph": "tsx src/cli/verify-connection.ts"
   },
   "keywords": [],
   "author": "",

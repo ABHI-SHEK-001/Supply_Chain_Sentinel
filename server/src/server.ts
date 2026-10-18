@@ -54,10 +54,10 @@ const app = createApp({
     },
 });
 await orchestrator.recoverInterrupted();
-const HOST = "127.0.0.1";
+const host = env.HOST || (env.NODE_ENV === "production" ? "0.0.0.0" : "127.0.0.1");
 
-const server = app.listen(env.PORT, HOST, () => {
-    logger.info("API listening", { host: HOST, port: env.PORT, nodeEnv: env.NODE_ENV });
+const server = app.listen(env.PORT, host, () => {
+    logger.info("API listening", { host, port: env.PORT, nodeEnv: env.NODE_ENV });
 });
 
 server.on("error", (err) => {
