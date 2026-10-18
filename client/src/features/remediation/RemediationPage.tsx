@@ -59,6 +59,7 @@ export default function RemediationPage() {
   const {
     data: plans,
     loading: plansLoading,
+    isRefreshing: plansRefreshing,
     error: plansError,
     refetch: refetchPlans,
   } = useApi<PlanSummary[]>(
@@ -180,10 +181,11 @@ export default function RemediationPage() {
             <Button
               variant="ghost"
               size="sm"
-              icon={<RefreshCw className="w-3.5 h-3.5" />}
+              icon={<RefreshCw className={cn('w-3.5 h-3.5', plansRefreshing && 'animate-spin text-accent')} />}
               onClick={refetchPlans}
+              disabled={plansRefreshing}
             >
-              Refresh
+              {plansRefreshing ? 'Refreshing...' : 'Refresh'}
             </Button>
           </div>
         }

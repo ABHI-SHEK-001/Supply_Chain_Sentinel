@@ -2,23 +2,33 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 
 type AsyncFn<T> = (signal: AbortSignal) => Promise<T>;
 
-interface UseApiState<T> {
+export interface UseApiState<T> {
   data: T | null;
   loading: boolean;
+  isRefreshing: boolean;
   error: Error | null;
-  refetch: () => void;
+  refetch: () => Promise<void>;
 }
 
 export function useApi<T>(fn: AsyncFn<T>, deps: unknown[] = []): UseApiState<T> {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const [tick, setTick] = useState(0);
-  const refetch = useCallback(() => setTick((t) => t + 1), []);
+
+  const refetch = useCallback(async () => {
+    setIsRefreshing(true);
+    setTick((t) => t + 1);
+    await new Promise((r) => setTimeout(r, 600));
+    setIsRefreshing(false);
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
-    setLoading(true);
+    if (tick === 0) {
+      setLoading(true);
+    }
     setError(null);
 
     fn(controller.signal)
@@ -39,7 +49,7 @@ export function useApi<T>(fn: AsyncFn<T>, deps: unknown[] = []): UseApiState<T> 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tick, ...deps]);
 
-  return { data, loading, error, refetch };
+  return { data, loading, isRefreshing, error, refetch };
 }
 
 export function usePolling<T>(
@@ -50,10 +60,17 @@ export function usePolling<T>(
 ): UseApiState<T> {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const [tick, setTick] = useState(0);
-  const refetch = useCallback(() => setTick((t) => t + 1), []);
   const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  const refetch = useCallback(async () => {
+    setIsRefreshing(true);
+    setTick((t) => t + 1);
+    await new Promise((r) => setTimeout(r, 600));
+    setIsRefreshing(false);
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -88,5 +105,5 @@ export function usePolling<T>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shouldPoll, intervalMs, tick, ...deps]);
 
-  return { data, loading, error, refetch };
+  return { data, loading, isRefreshing, error, refetch };
 }

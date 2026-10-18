@@ -5,6 +5,7 @@ import { PageHeader, Card, Button } from '../../components/ui/shared';
 import { useApi } from '../../hooks/useApi';
 import { listRepositories } from '../../api/repositories';
 import DependencyGraphView from '../../components/graph/DependencyGraphView';
+import { cn } from '../../lib/utils';
 import type { RepositorySummary } from '../../types/api';
 
 export default function DependencyGraphPage() {
@@ -13,7 +14,7 @@ export default function DependencyGraphPage() {
 
   const [selectedRepoId, setSelectedRepoId] = useState<string>(repoParam || '');
 
-  const { data: repos, loading: reposLoading, refetch } = useApi<RepositorySummary[]>(
+  const { data: repos, loading: reposLoading, isRefreshing, refetch } = useApi<RepositorySummary[]>(
     useCallback((s: AbortSignal) => listRepositories(s), []),
   );
 
@@ -40,10 +41,11 @@ export default function DependencyGraphPage() {
             <Button
               variant="ghost"
               size="sm"
-              icon={<RefreshCw className="w-3.5 h-3.5" />}
+              icon={<RefreshCw className={cn('w-3.5 h-3.5', isRefreshing && 'animate-spin text-accent')} />}
               onClick={refetch}
+              disabled={isRefreshing}
             >
-              Refresh Repositories
+              {isRefreshing ? 'Refreshing...' : 'Refresh Repositories'}
             </Button>
           </div>
         }

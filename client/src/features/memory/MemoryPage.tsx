@@ -81,6 +81,7 @@ export default function MemoryPage() {
   const {
     data: decisions,
     loading: decisionsLoading,
+    isRefreshing: decisionsRefreshing,
     error: decisionsError,
     refetch: refetchDecisions,
   } = useApi<Decision[]>(
@@ -179,10 +180,11 @@ export default function MemoryPage() {
             <Button
               variant="ghost"
               size="sm"
-              icon={<RefreshCw className="w-3.5 h-3.5" />}
+              icon={<RefreshCw className={cn('w-3.5 h-3.5', decisionsRefreshing && 'animate-spin text-accent')} />}
               onClick={refetchDecisions}
+              disabled={decisionsRefreshing}
             >
-              Refresh
+              {decisionsRefreshing ? 'Refreshing...' : 'Refresh'}
             </Button>
           </div>
         }

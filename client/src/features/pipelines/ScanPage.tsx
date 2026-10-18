@@ -37,7 +37,7 @@ export default function ScanPage() {
     }
   }, [repos, repoId]);
 
-  const { data: pipelines, loading, error, refetch } = useApi(
+  const { data: pipelines, loading, isRefreshing, error, refetch } = useApi(
     useCallback(
       (s: AbortSignal) => (repoId ? listPipelines(repoId, s) : Promise.resolve([])),
       [repoId],
@@ -146,8 +146,14 @@ export default function ScanPage() {
       {/* Pipeline list */}
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-sm font-semibold text-ink-200">Pipeline History — {repoId || '…'}</h2>
-        <Button variant="ghost" size="sm" icon={<RefreshCw className="w-3.5 h-3.5" />} onClick={refetch}>
-          Refresh
+        <Button
+          variant="ghost"
+          size="sm"
+          icon={<RefreshCw className={cn('w-3.5 h-3.5', isRefreshing && 'animate-spin text-accent')} />}
+          onClick={refetch}
+          disabled={isRefreshing}
+        >
+          {isRefreshing ? 'Refreshing...' : 'Refresh'}
         </Button>
       </div>
 

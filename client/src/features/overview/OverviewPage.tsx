@@ -15,6 +15,7 @@ import {
   XCircle,
   Clock,
   Network,
+  RefreshCw,
 } from 'lucide-react';
 import { Card, PageHeader, ErrorState, Button, Badge } from '../../components/ui/shared';
 import { cn, formatRelative, pipelineStatusBg, taskStatusColor, severityBg } from '../../lib/utils';
@@ -40,6 +41,7 @@ export default function OverviewPage() {
   const [pipelines, setPipelines] = useState<PipelineSummary[]>([]);
   const [vulns, setVulns] = useState<VulnerabilitySummary[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   const load = useCallback(async () => {
@@ -70,6 +72,13 @@ export default function OverviewPage() {
     }
   }, []);
 
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await load();
+    await new Promise((r) => setTimeout(r, 600));
+    setIsRefreshing(false);
+  };
+
   useEffect(() => { load(); }, [load]);
 
   if (error && !health && repos.length === 0) {
@@ -78,6 +87,17 @@ export default function OverviewPage() {
         <PageHeader
           title="Security Overview"
           icon={<Shield className="w-5 h-5 text-accent" />}
+          actions={
+            <Button
+              variant="ghost"
+              size="sm"
+              icon={<RefreshCw className={cn('w-3.5 h-3.5', isRefreshing && 'animate-spin text-accent')} />}
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+            >
+              {isRefreshing ? 'Refreshing...' : 'Refresh'}
+            </Button>
+          }
         />
         <ErrorState error={error} onRetry={load} />
       </div>
@@ -98,13 +118,25 @@ export default function OverviewPage() {
         description="AI-powered supply chain security intelligence"
         icon={<Shield className="w-5 h-5 text-accent" />}
         actions={
-          <Button
-            variant="primary"
-            icon={<ScanLine className="w-4 h-4" />}
-            onClick={() => navigate('/scan')}
-          >
-            Start Scan
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="primary"
+              size="sm"
+              icon={<ScanLine className="w-4 h-4" />}
+              onClick={() => navigate('/scan')}
+            >
+              Start Scan
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              icon={<RefreshCw className={cn('w-3.5 h-3.5', isRefreshing && 'animate-spin text-accent')} />}
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+            >
+              {isRefreshing ? 'Refreshing...' : 'Refresh'}
+            </Button>
+          </div>
         }
       />
 

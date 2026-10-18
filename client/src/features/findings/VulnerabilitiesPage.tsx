@@ -17,7 +17,7 @@ export default function VulnerabilitiesPage() {
   const [severityFilter, setSeverityFilter] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  const { data: vulns, loading, error, refetch } = useApi(
+  const { data: vulns, loading, isRefreshing, error, refetch } = useApi(
     useCallback((s: AbortSignal) => listVulnerabilities(200, s), []),
   );
 
@@ -49,8 +49,14 @@ export default function VulnerabilitiesPage() {
         description="Known security vulnerabilities across all repositories"
         icon={<AlertTriangle className="w-5 h-5 text-severity-high" />}
         actions={
-          <Button variant="ghost" size="sm" icon={<RefreshCw className="w-3.5 h-3.5" />} onClick={refetch}>
-            Refresh
+          <Button
+            variant="ghost"
+            size="sm"
+            icon={<RefreshCw className={cn('w-3.5 h-3.5', isRefreshing && 'animate-spin text-accent')} />}
+            onClick={refetch}
+            disabled={isRefreshing}
+          >
+            {isRefreshing ? 'Refreshing...' : 'Refresh'}
           </Button>
         }
       />

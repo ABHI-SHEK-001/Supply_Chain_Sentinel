@@ -42,9 +42,13 @@ export default function RepositoryDetailPage() {
     ),
   );
 
-  const handleRefreshAll = () => {
-    refetch();
-    refetchPipelines();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefreshAll = async () => {
+    setIsRefreshing(true);
+    await Promise.allSettled([refetch(), refetchPipelines()]);
+    await new Promise((r) => setTimeout(r, 600));
+    setIsRefreshing(false);
   };
 
   if (error) {
@@ -92,10 +96,11 @@ export default function RepositoryDetailPage() {
             <Button
               variant="ghost"
               size="sm"
-              icon={<RefreshCw className="w-3.5 h-3.5" />}
+              icon={<RefreshCw className={cn('w-3.5 h-3.5', isRefreshing && 'animate-spin text-accent')} />}
               onClick={handleRefreshAll}
+              disabled={isRefreshing}
             >
-              Refresh
+              {isRefreshing ? 'Refreshing...' : 'Refresh'}
             </Button>
           </div>
         }
